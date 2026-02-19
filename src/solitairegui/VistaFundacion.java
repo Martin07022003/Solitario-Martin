@@ -16,7 +16,6 @@ public class VistaFundacion extends StackPane {
     public void refrescar() {
         this.getChildren().clear();
 
-        // 1. Dibujamos el marco base (el cuadro con borde blanco)
         Rectangle base = new Rectangle(110, 150);
         base.setArcWidth(10);
         base.setArcHeight(10);
@@ -25,7 +24,7 @@ public class VistaFundacion extends StackPane {
         base.setStrokeWidth(2);
         this.getChildren().add(base);
 
-        // 2. Si hay cartas en la fundación (como un As), usamos VistaCarta
+        // Si hay cartas en la fundación las dibuja
         if (!modelo.estaVacio()) {
             VistaCarta cartaVisual = new VistaCarta(modelo.getUltimaCarta());
             this.getChildren().add(cartaVisual);

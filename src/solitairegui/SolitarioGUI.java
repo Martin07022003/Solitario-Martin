@@ -39,11 +39,11 @@ public class SolitarioGUI extends Application {
     @Override
     public void start(Stage escenarioPrincipal) {
         this.escenario = escenarioPrincipal;
-        reiniciarJuego(); // Inicia el juego
+        reiniciarJuego(); // Iniciar el juego
     }
 
     private void reiniciarJuego() {
-        modeloJuego = new SolitaireGame(); // Inicializa lógica de la maestra
+        modeloJuego = new SolitaireGame();
         listaVistasFundaciones.clear();
         tipoSeleccion = 0;
         indiceSeleccionado = -1;
@@ -52,17 +52,16 @@ public class SolitarioGUI extends Application {
         raiz.setPadding(new Insets(20));
         raiz.setStyle("-fx-background-color: #2e7d32;");
 
-        // --- ZONA SUPERIOR ---
         HBox arriba = new HBox(30);
         arriba.setAlignment(Pos.CENTER);
         arriba.setPadding(new Insets(0, 0, 30, 0));
 
-        // Botón de Reiniciar (Siempre visible)
+        // Botón de Reiniciar
         Button btnReiniciar = new Button("REINICIAR");
         btnReiniciar.setStyle("-fx-background-color: #d32f2f; -fx-text-fill: white; -fx-font-weight: bold;");
         btnReiniciar.setOnAction(e -> reiniciarJuego());
 
-        // Mazo de Robo con imagen reverso.png
+        // Mazo de Robo
         StackPane mazoRobo = crearVistaMazo();
         mazoRobo.setOnMouseClicked(e -> {
             if (modeloJuego.getDrawPile().hayCartas()) {
@@ -76,14 +75,14 @@ public class SolitarioGUI extends Application {
         vistaWaste = new VistaWaste(modeloJuego.getWastePile());
         vistaWaste.setOnMouseClicked(e -> {
             if (modeloJuego.getWastePile().hayCartas()) {
-                tipoSeleccion = 2; // Seleccionamos el Waste
+                tipoSeleccion = 2;
                 actualizarVisual();
             }
         });
 
         arriba.getChildren().addAll(btnReiniciar, mazoRobo, vistaWaste);
 
-        // Crear Fundaciones (Espacios para los Aces)
+        // Crear Fundaciones
         for (int i = 0; i < 4; i++) {
             VistaFundacion vFund = new VistaFundacion(modeloJuego.getFoundation().get(i));
             vFund.setOnMouseClicked(e -> {
@@ -96,7 +95,7 @@ public class SolitarioGUI extends Application {
         }
         raiz.setTop(arriba);
 
-        // --- ZONA CENTRAL (Columnas) ---
+        // Columnas de cartas
         contenedorCentro = new HBox(15);
         contenedorCentro.setAlignment(Pos.TOP_CENTER);
         actualizarCentro();
@@ -127,10 +126,10 @@ public class SolitarioGUI extends Application {
         actualizarCentro();
         for (VistaFundacion vf : listaVistasFundaciones) vf.refrescar();
 
-        if (tipoSeleccion == 2) vistaWaste.setStyle("-fx-border-color: yellow; -fx-border-width: 3;");
-        else vistaWaste.setStyle("-fx-border-color: transparent;");
+        System.out.println("\n--- CONSOLA ---");
+        System.out.println(modeloJuego.toString());
+        System.out.println("-----------------------------------------------\n");
 
-        // VERIFICACIÓN DE VICTORIA USANDO LÓGICA DE LA MAESTRA
         if (modeloJuego.isGameOver()) {
             mostrarPantallaGanaste();
         }

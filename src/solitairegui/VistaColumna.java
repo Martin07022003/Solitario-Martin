@@ -10,11 +10,11 @@ import solitaire.TableauDeck;
 import DeckOfCards.CartaInglesa;
 
 public class VistaColumna extends VBox {
-    private TableauDeck modelo; // La lógica de la maestra
+    private TableauDeck modelo;
 
     public VistaColumna(TableauDeck modelo) {
         this.modelo = modelo;
-        this.setSpacing(-100); // Esto hace que las cartas se encimen un poco
+        this.setSpacing(-100);
         this.setAlignment(Pos.TOP_CENTER);
         refrescar();
     }
@@ -23,13 +23,13 @@ public class VistaColumna extends VBox {
         this.getChildren().clear(); // Limpiamos lo viejo
 
         if (modelo.isEmpty()) {
-            // Si no hay cartas, dibujamos un espacio vacío
+            // Si no hay cartas, dibujar espacio vacío
             Rectangle fondo = new Rectangle(100, 140);
             fondo.setFill(Color.TRANSPARENT);
             fondo.setStroke(Color.LIGHTGRAY);
             this.getChildren().add(fondo);
         } else {
-            // Dibujamos cada carta que tenga la columna
+            // Dibujar carta
             for (CartaInglesa carta : modelo.getCards()) {
                 this.getChildren().add(crearCartaVisual(carta));
             }
