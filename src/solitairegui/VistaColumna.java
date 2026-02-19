@@ -20,7 +20,7 @@ public class VistaColumna extends VBox {
     }
 
     public void refrescar() {
-        this.getChildren().clear(); // Limpiamos lo viejo
+        this.getChildren().clear(); // Limpiar
 
         if (modelo.isEmpty()) {
             // Si no hay cartas, dibujar espacio vacío

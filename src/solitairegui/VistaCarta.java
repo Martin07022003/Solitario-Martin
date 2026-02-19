@@ -18,7 +18,7 @@ public class VistaCarta extends StackPane {
     private void dibujar() {
         this.getChildren().clear();
 
-        // 1. Fondo blanco de la carta
+        // Fondo blanco de la carta
         Rectangle fondoBlanco = new Rectangle(110, 150);
         fondoBlanco.setFill(Color.WHITE);
         fondoBlanco.setArcWidth(10);

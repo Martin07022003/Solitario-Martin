@@ -61,7 +61,7 @@ public class SolitarioGUI extends Application {
         btnReiniciar.setStyle("-fx-background-color: #d32f2f; -fx-text-fill: white; -fx-font-weight: bold;");
         btnReiniciar.setOnAction(e -> reiniciarJuego());
 
-        // Mazo de Robo
+        // Waste
         StackPane mazoRobo = crearVistaMazo();
         mazoRobo.setOnMouseClicked(e -> {
             if (modeloJuego.getDrawPile().hayCartas()) {
