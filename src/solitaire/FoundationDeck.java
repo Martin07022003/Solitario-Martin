@@ -2,6 +2,7 @@ package solitaire;
 
 import DeckOfCards.CartaInglesa;
 import DeckOfCards.Palo;
+import java.util.ArrayList;
 
 /**
  * Modela un monículo donde se ponen las cartas
