@@ -10,22 +10,24 @@ import java.util.ArrayList;
  * @author (Cecilia Curlango Rosas)
  * @version (2025-2)
  */
+
 public class WastePile {
-    private ArrayList<CartaInglesa> cartas;
+    private Pila<CartaInglesa> cartas;
 
     public WastePile() {
-        cartas = new ArrayList<>();
+        cartas = new Pila<>(52); // Capacidad máxima de la baraja
     }
 
     public void addCartas(ArrayList<CartaInglesa> nuevas) {
-        cartas.addAll(nuevas);
+        for (CartaInglesa c : nuevas) {
+            cartas.push(c);
+        }
     }
 
     public ArrayList<CartaInglesa> emptyPile() {
         ArrayList<CartaInglesa> pile = new ArrayList<>();
-        if (!cartas.isEmpty()) {
-            pile.addAll(cartas);
-            cartas = new ArrayList<>();
+        while (!cartas.pilaVacia()) {
+            pile.add(cartas.pop());
         }
         return pile;
     }
@@ -35,27 +37,20 @@ public class WastePile {
      * @return Carta que está encima. Si está vacía, es null.
      */
     public CartaInglesa verCarta() {
-        CartaInglesa regresar = null;
-        if (!cartas.isEmpty()) {
-            regresar = cartas.getLast();
-        }
-        return regresar;
+        return cartas.verTope();
     }
+
     public CartaInglesa getCarta() {
-        CartaInglesa regresar = null;
-        if (!cartas.isEmpty()) {
-            regresar = cartas.removeLast();
-        }
-        return regresar;
+        return cartas.pop();
     }
 
     @Override
     public String toString() {
         StringBuilder stb = new StringBuilder();
-        if (cartas.isEmpty()) {
+        if (cartas.pilaVacia()) {
             stb.append("---");
         } else {
-            CartaInglesa regresar = cartas.getLast();
+            CartaInglesa regresar = cartas.verTope();
             regresar.makeFaceUp();
             stb.append(regresar.toString());
         }
@@ -63,6 +58,6 @@ public class WastePile {
     }
 
     public boolean hayCartas() {
-        return !cartas.isEmpty();
+        return !cartas.pilaVacia();
     }
 }

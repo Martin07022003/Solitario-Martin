@@ -3,8 +3,6 @@ package solitaire;
 import DeckOfCards.CartaInglesa;
 import DeckOfCards.Palo;
 
-import java.util.ArrayList;
-
 /**
  * Modela un monículo donde se ponen las cartas
  * de un solo palo.
@@ -14,7 +12,7 @@ import java.util.ArrayList;
  */
 public class FoundationDeck {
     Palo palo;
-    ArrayList<CartaInglesa> cartas = new ArrayList<>();
+    Pila<CartaInglesa> cartas = new Pila<>(13); // Capacidad máxima de un palo
 
     public FoundationDeck(Palo palo) {
         this.palo = palo;
@@ -22,9 +20,8 @@ public class FoundationDeck {
 
     public FoundationDeck(CartaInglesa carta) {
         palo = carta.getPalo();
-        // solo agrega la carta si es un A
         if (carta.getValorBajo() == 1) {
-            cartas.add(carta);
+            cartas.push(carta);
         }
     }
 
@@ -39,18 +36,15 @@ public class FoundationDeck {
     public boolean agregarCarta(CartaInglesa carta) {
         boolean agregado = false;
         if (carta.tieneElMismoPalo(palo)) {
-            if (cartas.isEmpty()) {
+            if (cartas.pilaVacia()) {
                 if (carta.getValorBajo() == 1) {
-                    // si no hay cartas entonces la carta debe ser un A
-                    cartas.add(carta);
+                    cartas.push(carta);
                     agregado = true;
                 }
             } else {
-                // si hay cartas entonces debe haber secuencia
-                CartaInglesa ultimaCarta = cartas.getLast();
+                CartaInglesa ultimaCarta = cartas.verTope();
                 if (ultimaCarta.getValorBajo() + 1 == carta.getValorBajo()) {
-                    // agregar la carta si el la siguiente a la última
-                    cartas.add(carta);
+                    cartas.push(carta);
                     agregado = true;
                 }
             }
@@ -64,44 +58,22 @@ public class FoundationDeck {
      * @return la carta que removió, null si estaba vacio
      */
     CartaInglesa removerUltimaCarta() {
-        CartaInglesa ultimaCarta = null;
-        if (!cartas.isEmpty()) {
-            ultimaCarta = cartas.getLast();
-            cartas.remove(ultimaCarta);
-        }
-        return ultimaCarta;
+        return cartas.pop();
     }
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        if (cartas.isEmpty()) {
-            builder.append("---");
-        } else {
-            for (CartaInglesa carta : cartas) {
-                builder.append(carta.toString());
-            }
+        if (cartas.pilaVacia()) {
+            return "---";
         }
-        return builder.toString();
+        return cartas.verTope().toString(); // En fundaciones basta con ver la cima en el toString
     }
 
-    /**
-     * Determina si hay cartas en el Foundation.
-     * @return true hay al menos una carta, false no hay cartas
-     */
     public boolean estaVacio() {
-        return cartas.isEmpty();
+        return cartas.pilaVacia();
     }
 
-    /**
-     * Obtiene la última carta del Foundation sin removerla.
-     * @return última carta, null si no hay cartas
-     */
     public CartaInglesa getUltimaCarta() {
-        CartaInglesa ultimaCarta = null;
-        if (!cartas.isEmpty()) {
-            ultimaCarta = cartas.getLast();
-        }
-        return ultimaCarta;
+        return cartas.verTope();
     }
 }

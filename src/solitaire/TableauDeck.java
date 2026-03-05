@@ -138,7 +138,7 @@ public class TableauDeck {
             CartaInglesa primera = cartasRecibidas.getFirst();
             // si la primera carta del bloque recibido se puede agregar al tableau actual
             if (sePuedeAgregarCarta(primera)) {
-                // se agrega todo el bloque
+                // se agrega el bloque
                 cartas.addAll(cartasRecibidas);
                 resultado = true;
             }
