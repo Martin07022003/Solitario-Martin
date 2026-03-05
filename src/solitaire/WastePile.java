@@ -57,6 +57,15 @@ public class WastePile {
         return stb.toString();
     }
 
+    // Metodo para el undo
+    public Pila<CartaInglesa> getCartasInternas() {
+        return this.cartas;
+    }
+
+    public void setCartasInternas(Pila<CartaInglesa> nuevas) {
+        this.cartas = nuevas;
+    }
+
     public boolean hayCartas() {
         return !cartas.pilaVacia();
     }

@@ -52,7 +52,8 @@ public class SolitarioGUI extends Application {
         raiz.setPadding(new Insets(20));
         raiz.setStyle("-fx-background-color: #2e7d32;");
 
-        HBox arriba = new HBox(30);
+        // --- PANEL SUPERIOR ---
+        HBox arriba = new HBox(20); // Espaciado ajustado para acomodar más botones
         arriba.setAlignment(Pos.CENTER);
         arriba.setPadding(new Insets(0, 0, 30, 0));
 
@@ -61,7 +62,15 @@ public class SolitarioGUI extends Application {
         btnReiniciar.setStyle("-fx-background-color: #d32f2f; -fx-text-fill: white; -fx-font-weight: bold;");
         btnReiniciar.setOnAction(e -> reiniciarJuego());
 
-        // Waste
+        // NUEVO: Botón UNDO
+        Button btnUndo = new Button("DESHACER");
+        btnUndo.setStyle("-fx-background-color: #1976d2; -fx-text-fill: white; -fx-font-weight: bold;");
+        btnUndo.setOnAction(e -> {
+            modeloJuego.deshacer();
+            limpiarSeleccion();
+        });
+
+        // Mazo de Robo (DrawPile)
         StackPane mazoRobo = crearVistaMazo();
         mazoRobo.setOnMouseClicked(e -> {
             if (modeloJuego.getDrawPile().hayCartas()) {
@@ -72,15 +81,17 @@ public class SolitarioGUI extends Application {
             limpiarSeleccion();
         });
 
+        // Vista Waste
         vistaWaste = new VistaWaste(modeloJuego.getWastePile());
         vistaWaste.setOnMouseClicked(e -> {
             if (modeloJuego.getWastePile().hayCartas()) {
                 tipoSeleccion = 2;
+                indiceSeleccionado = -1; // No es una columna
                 actualizarVisual();
             }
         });
 
-        arriba.getChildren().addAll(btnReiniciar, mazoRobo, vistaWaste);
+        arriba.getChildren().addAll(btnReiniciar, btnUndo, mazoRobo, vistaWaste);
 
         // Crear Fundaciones
         for (int i = 0; i < 4; i++) {
@@ -95,14 +106,14 @@ public class SolitarioGUI extends Application {
         }
         raiz.setTop(arriba);
 
-        // Columnas de cartas
+        // Columnas de cartas (Tableau)
         contenedorCentro = new HBox(15);
         contenedorCentro.setAlignment(Pos.TOP_CENTER);
         actualizarCentro();
         raiz.setCenter(contenedorCentro);
 
         Scene escena = new Scene(raiz, 1200, 900);
-        escenario.setTitle("Solitario");
+        escenario.setTitle("Solitario - Martin Sanchez");
         escenario.setScene(escena);
         escenario.show();
     }
@@ -122,13 +133,15 @@ public class SolitarioGUI extends Application {
     }
 
     private void actualizarVisual() {
+        if (tipoSeleccion == 2) {
+            vistaWaste.setStyle("-fx-border-color: yellow; -fx-border-width: 3; -fx-border-radius: 5;");
+        } else {
+            vistaWaste.setStyle("-fx-border-color: transparent;");
+        }
+
         vistaWaste.refrescar();
         actualizarCentro();
         for (VistaFundacion vf : listaVistasFundaciones) vf.refrescar();
-
-        System.out.println("\n--- CONSOLA ---");
-        System.out.println(modeloJuego.toString());
-        System.out.println("-----------------------------------------------\n");
 
         if (modeloJuego.isGameOver()) {
             mostrarPantallaGanaste();
@@ -138,7 +151,7 @@ public class SolitarioGUI extends Application {
     private void mostrarPantallaGanaste() {
         VBox pantallaVictoria = new VBox(20);
         pantallaVictoria.setAlignment(Pos.CENTER);
-        pantallaVictoria.setStyle("-fx-background-color: rgba(255, 255, 0, 0.9);"); // Pantalla Amarilla
+        pantallaVictoria.setStyle("-fx-background-color: rgba(255, 255, 0, 0.9);");
 
         Label textoGanaste = new Label("¡GANASTE!");
         textoGanaste.setFont(Font.font("Arial", FontWeight.BOLD, 120));
@@ -162,6 +175,7 @@ public class SolitarioGUI extends Application {
         for (int i = 0; i < 7; i++) {
             final int numCol = i + 1;
             VistaColumna vCol = new VistaColumna(modeloJuego.getTableau().get(i));
+            // Marcado amarillo para columnas
             if (tipoSeleccion == 1 && indiceSeleccionado == numCol) {
                 vCol.setStyle("-fx-border-color: yellow; -fx-border-width: 3; -fx-border-radius: 5;");
             }
@@ -183,7 +197,7 @@ public class SolitarioGUI extends Application {
             iv.setFitWidth(100); iv.setFitHeight(140);
             sp.getChildren().add(iv);
         } catch (Exception e) {
-            Rectangle r = new Rectangle(110, 150, Color.BLACK);
+            Rectangle r = new Rectangle(100, 140, Color.BLACK);
             r.setArcWidth(10); r.setArcHeight(10);
             sp.getChildren().add(r);
         }

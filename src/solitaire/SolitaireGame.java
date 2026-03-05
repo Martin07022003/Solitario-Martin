@@ -4,11 +4,13 @@ import DeckOfCards.CartaInglesa;
 import DeckOfCards.Palo;
 
 import java.util.ArrayList;
+
 /**
  * Juego de solitario.
  *
  * @author (Cecilia Curlango Rosas)
  * @version (2025-2)
+ *
  */
 public class SolitaireGame {
     ArrayList<TableauDeck> tableau = new ArrayList<>();
@@ -16,6 +18,9 @@ public class SolitaireGame {
     FoundationDeck lastFoundationUpdated;
     DrawPile drawPile;
     WastePile wastePile;
+
+    // --- NUEVO: Pila para el historial de movimientos (Undo) ---
+    private Pila<Movimiento> historial = new Pila<>(100);
 
     public SolitaireGame() {
         drawPile = new DrawPile();
@@ -26,9 +31,37 @@ public class SolitaireGame {
     }
 
     /**
+     * Captura el estado actual antes de un cambio y lo guarda en la pila de historial.
+     */
+    private void registrarEstado() {
+        Movimiento instantanea = new Movimiento(drawPile, wastePile, tableau, foundation);
+        historial.push(instantanea);
+    }
+
+    /**
+     * Revierte el juego al estado anterior almacenado en la pila de historial.
+     */
+    public void deshacer() {
+        if (!historial.pilaVacia()) {
+            Movimiento anterior = historial.pop();
+            // Restauramos los estados internos de cada componente
+            this.drawPile.setCartasInternas(anterior.copiaDraw);
+            this.wastePile.setCartasInternas(anterior.copiaWaste);
+
+            for (int i = 0; i < 7; i++) {
+                this.tableau.get(i).setCards(new ArrayList<>(anterior.copiaTableaux[i]));
+            }
+            for (int i = 0; i < 4; i++) {
+                this.foundation.get(i).setCardsInternas(anterior.copiaFoundations[i]);
+            }
+        }
+    }
+
+    /**
      * Move cards from Waste pile to Draw Pile.
      */
     public void reloadDrawPile() {
+        registrarEstado(); // Registro antes de recargar
         ArrayList<CartaInglesa> cards = wastePile.emptyPile();
         drawPile.recargar(cards);
     }
@@ -37,6 +70,7 @@ public class SolitaireGame {
      * Move cards from Draw pile to Waste Pile.
      */
     public void drawCards() {
+        registrarEstado(); // Registro antes de robar
         ArrayList<CartaInglesa> cards = drawPile.retirarCartas();
         wastePile.addCartas(cards);
     }
@@ -83,6 +117,9 @@ public class SolitaireGame {
             // ver que carta es la del inicio del bloque
             CartaInglesa cartaInicialDePrueba = fuente.viewCardStartingAt(valorQueDebeTenerLaCartaInicialDeLaFuente);
             if (cartaInicialDePrueba != null && destino.sePuedeAgregarCarta(cartaInicialDePrueba)) {
+
+                registrarEstado(); // SE REGISTRA AQUÍ: Cuando sabemos que el movimiento es posible
+
                 ArrayList<CartaInglesa> cartas = fuente.removeStartingAt(valorQueDebeTenerLaCartaInicialDeLaFuente);
                 if (destino.agregarBloqueDeCartas(cartas)) {
                     if (!fuente.isEmpty()) {
@@ -90,15 +127,13 @@ public class SolitaireGame {
                         fuente.verUltimaCarta().makeFaceUp();
                     }
                     movimientoRealizado = true;
+                } else {
+                    historial.pop(); // Si algo falló al agregar, revertimos el registro
                 }
             }
-
         }
-
-
         return movimientoRealizado;
     }
-
 
     /**
      * Tomar la carta de Tableau y colocarla en el Foundation.
@@ -108,14 +143,17 @@ public class SolitaireGame {
      */
     public boolean moveTableauToFoundation(int numero) {
         boolean movimientoRealizado = false;
-
         TableauDeck fuente = tableau.get(numero - 1);
         CartaInglesa carta = fuente.removerUltimaCarta();
+
+        registrarEstado(); // Guardamos antes de intentar colocar en fundación
+
         if (moveCartaToFoundation(carta)) {
             movimientoRealizado = true;
         } else {
             // regresar la carta al tableau porque no se puede hacer el movimiento
             fuente.agregarCarta(carta);
+            historial.pop(); // Borramos el estado guardado porque no hubo cambio real
         }
         return movimientoRealizado;
     }
@@ -128,12 +166,16 @@ public class SolitaireGame {
      */
     public boolean moveWasteToTableau(TableauDeck tableau) {
         boolean movimientoRealizado = false;
-
         CartaInglesa carta = wastePile.verCarta();
+
+        registrarEstado(); // Registro preventivo
+
         if (moveCartaToTableau(carta, tableau)) {
             // si es movimiento válido, elimina la carta de la pila
             carta = wastePile.getCarta();
             movimientoRealizado = true;
+        } else {
+            historial.pop(); // Movimiento inválido
         }
         return movimientoRealizado;
     }
@@ -145,12 +187,16 @@ public class SolitaireGame {
      */
     public boolean moveWasteToFoundation() {
         boolean movimientoRealizado = false;
-
         CartaInglesa carta = wastePile.verCarta();
+
+        registrarEstado();
+
         if (moveCartaToFoundation(carta)) {
             // si es movimiento válido, elimina la carta de la pila
             carta = wastePile.getCarta();
             movimientoRealizado = true;
+        } else {
+            historial.pop();
         }
         return movimientoRealizado;
     }

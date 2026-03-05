@@ -194,4 +194,9 @@ public class TableauDeck {
     public ArrayList<CartaInglesa> getCards() {
         return cartas;
     }
+
+    // Metodo para el undo
+    public void setCards(ArrayList<CartaInglesa> nuevas) {
+        this.cartas = nuevas;
+    }
 }

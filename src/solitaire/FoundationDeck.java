@@ -76,4 +76,16 @@ public class FoundationDeck {
     public CartaInglesa getUltimaCarta() {
         return cartas.verTope();
     }
+
+    // Metodos para el undo
+    public Pila<CartaInglesa> getCardsInternas() {
+        return this.cartas;
+    }
+
+    public void setCardsInternas(ArrayList<CartaInglesa> lista) {
+        this.cartas = new Pila<>(13);
+        for (CartaInglesa c : lista) {
+            this.cartas.push(c);
+        }
+    }
 }

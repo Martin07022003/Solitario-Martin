@@ -99,6 +99,15 @@ public class DrawPile {
         }
     }
 
+    // Metodos para el undo
+    public Pila<CartaInglesa> getCartasInternas() {
+        return this.cartas;
+    }
+
+    public void setCartasInternas(Pila<CartaInglesa> nuevas) {
+        this.cartas = nuevas;
+    }
+
     @Override
     public String toString() {
         if (cartas.pilaVacia()) {
