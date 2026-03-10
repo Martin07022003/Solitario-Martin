@@ -49,7 +49,7 @@ public class SolitaireGame {
             this.wastePile.setCartasInternas(anterior.copiaWaste);
 
             for (int i = 0; i < 7; i++) {
-                this.tableau.get(i).setCards(new ArrayList<>(anterior.copiaTableaux[i]));
+                this.tableau.get(i).setCards(new ArrayList<CartaInglesa>(anterior.copiaTableaux[i]));
             }
             for (int i = 0; i < 4; i++) {
                 this.foundation.get(i).setCardsInternas(anterior.copiaFoundations[i]);

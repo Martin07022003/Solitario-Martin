@@ -89,4 +89,20 @@ public class FoundationDeck {
             this.cartas.push(c);
         }
     }
+
+    public ArrayList<CartaInglesa> getCardsInternasParaCopia() {
+        ArrayList<CartaInglesa> lista = new ArrayList<>();
+        Pila<CartaInglesa> auxiliar = new Pila<>(13);
+
+        while (!this.cartas.pilaVacia()) {
+            auxiliar.push(this.cartas.pop());
+        }
+
+        while (!auxiliar.pilaVacia()) {
+            CartaInglesa c = auxiliar.pop();
+            this.cartas.push(c);
+            lista.add(c);
+        }
+        return lista;
+    }
 }

@@ -3,9 +3,8 @@ package solitaire;
 import DeckOfCards.CartaInglesa;
 import java.util.ArrayList;
 
-//Undo
 public class Movimiento {
-    // Copias de cada estructura
+    // Estructuras para restaurar el estado
     public Pila<CartaInglesa> copiaDraw;
     public Pila<CartaInglesa> copiaWaste;
     public ArrayList<CartaInglesa>[] copiaTableaux;
@@ -13,26 +12,30 @@ public class Movimiento {
 
     @SuppressWarnings("unchecked")
     public Movimiento(DrawPile dp, WastePile wp, ArrayList<TableauDeck> td, ArrayList<FoundationDeck> fd) {
-        // Clonar Pila de DrawPile
+        // Clonar Pilas usando el metodo auxiliar
         this.copiaDraw = clonarPila(dp.getCartasInternas());
-
-        // Clonar Pila de WastePile
         this.copiaWaste = clonarPila(wp.getCartasInternas());
 
-        // Clonar las 7 columnas del Tableau
-        this.copiaTableaux = new ArrayList[7];
-        for (int i = 0; i < 7; i++) {
+        this.copiaTableaux = (ArrayList<CartaInglesa>[]) new ArrayList[7];
+        this.copiaFoundations = (ArrayList<CartaInglesa>[]) new ArrayList[4];
 
-            this.copiaTableaux[i] = new ArrayList<>(td.get(i).getCards());
+        // Clonar las 7 columnas del Tableau
+        for (int i = 0; i < 7; i++) {
+            // Especificamos el tipo <CartaInglesa> para que Java no tenga dudas
+            this.copiaTableaux[i] = new ArrayList<CartaInglesa>(td.get(i).getCards());
         }
 
         // Clonar las 4 Fundaciones
-        this.copiaFoundations = new ArrayList[4];
         for (int i = 0; i < 4; i++) {
-            this.copiaFoundations[i] = new ArrayList<>(fd.get(i).getCardsInternas());
+            // Usamos el metodo que devuelve la lista de la pila interna
+            this.copiaFoundations[i] = new ArrayList<CartaInglesa>(fd.get(i).getCardsInternasParaCopia());
         }
     }
 
+    /**
+     * Algoritmo de clonación de Pilas:
+     * Usa una pila auxiliar para duplicar los datos sin perder el orden LIFO.
+     */
     private Pila<CartaInglesa> clonarPila(Pila<CartaInglesa> original) {
         if (original == null) return null;
 
