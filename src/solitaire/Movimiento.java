@@ -54,6 +54,7 @@ public class Movimiento {
         return copia;
     }
 
+        //Pila Auxiliar
     private Pila<CartaInglesa> clonarPilaConCartasNuevas(Pila<CartaInglesa> original) {
         if (original == null) return null;
 

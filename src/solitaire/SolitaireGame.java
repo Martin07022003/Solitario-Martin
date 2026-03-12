@@ -41,9 +41,6 @@ public class SolitaireGame {
     /**
      * Revierte el juego al estado anterior almacenado en la pila de historial.
      */
-    /**
-     * Revierte el juego al estado anterior almacenado en la pila de historial.
-     */
     public void deshacer() {
         if (!historial.pilaVacia()) {
             Movimiento anterior = historial.pop();
@@ -59,7 +56,6 @@ public class SolitaireGame {
 
             // Restaurar Foundations
             for (int i = 0; i < 4; i++) {
-
                 this.foundation.get(i).setCardsInternas(anterior.copiaFoundations[i]);
 
                 if (!this.foundation.get(i).estaVacio()) {
@@ -156,16 +152,19 @@ public class SolitaireGame {
     public boolean moveTableauToFoundation(int numero) {
         boolean movimientoRealizado = false;
         TableauDeck fuente = tableau.get(numero - 1);
-        CartaInglesa carta = fuente.removerUltimaCarta();
 
-        registrarEstado(); // Guardamos antes del movimiento
+        if (!fuente.isEmpty()) {
+            CartaInglesa carta = fuente.verUltimaCarta();
+            int cualFoundation = carta.getPalo().ordinal();
+            FoundationDeck destino = foundation.get(cualFoundation);
 
-        if (moveCartaToFoundation(carta)) {
-            movimientoRealizado = true;
-        } else {
-            // regresar la carta al tableau porque no se puede hacer el movimiento
-            fuente.agregarCarta(carta);
-            historial.pop(); // Borrar el estado porque no hubo movimiento
+            if (validarMovimientoFoundation(carta, destino)) {
+                registrarEstado();
+                fuente.removerUltimaCarta();
+                destino.agregarCarta(carta);
+                lastFoundationUpdated = destino;
+                movimientoRealizado = true;
+            }
         }
         return movimientoRealizado;
     }
@@ -180,14 +179,11 @@ public class SolitaireGame {
         boolean movimientoRealizado = false;
         CartaInglesa carta = wastePile.verCarta();
 
-        registrarEstado(); // Registro preventivo
-
-        if (moveCartaToTableau(carta, tableau)) {
-            // si es movimiento válido, elimina la carta de la pila
+        if (tableau.sePuedeAgregarCarta(carta)) {
+            registrarEstado();
             carta = wastePile.getCarta();
+            tableau.agregarCarta(carta);
             movimientoRealizado = true;
-        } else {
-            historial.pop(); // Movimiento inválido
         }
         return movimientoRealizado;
     }
@@ -199,18 +195,30 @@ public class SolitaireGame {
      */
     public boolean moveWasteToFoundation() {
         boolean movimientoRealizado = false;
-        CartaInglesa carta = wastePile.verCarta();
 
-        registrarEstado();
+        if (wastePile.hayCartas()) {
+            CartaInglesa carta = wastePile.verCarta();
+            int cualFoundation = carta.getPalo().ordinal();
+            FoundationDeck destino = foundation.get(cualFoundation);
 
-        if (moveCartaToFoundation(carta)) {
-            // si es movimiento válido, elimina la carta de la pila
-            carta = wastePile.getCarta();
-            movimientoRealizado = true;
-        } else {
-            historial.pop();
+            // Validación previa
+            if (validarMovimientoFoundation(carta, destino)) {
+                registrarEstado();
+                wastePile.getCarta();
+                destino.agregarCarta(carta);
+                movimientoRealizado = true;
+            }
         }
         return movimientoRealizado;
+    }
+
+    // CAMBIO: Auxiliar para validar reglas de fundación
+    private boolean validarMovimientoFoundation(CartaInglesa carta, FoundationDeck destino) {
+        if (destino.estaVacio()) {
+            return carta.getValorBajo() == 1;
+        }
+        CartaInglesa tope = destino.getUltimaCarta();
+        return carta.getValorBajo() == tope.getValorBajo() + 1;
     }
 
     /**
