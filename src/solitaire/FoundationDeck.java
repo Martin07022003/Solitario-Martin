@@ -67,7 +67,7 @@ public class FoundationDeck {
         if (cartas.pilaVacia()) {
             return "---";
         }
-        return cartas.verTope().toString(); // En fundaciones basta con ver la cima en el toString
+        return cartas.verTope().toString();
     }
 
     public boolean estaVacio() {

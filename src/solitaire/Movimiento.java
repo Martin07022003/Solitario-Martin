@@ -4,7 +4,6 @@ import DeckOfCards.CartaInglesa;
 import java.util.ArrayList;
 
 public class Movimiento {
-    // Estructuras para restaurar el estado
     public Pila<CartaInglesa> copiaDraw;
     public Pila<CartaInglesa> copiaWaste;
     public ArrayList<CartaInglesa>[] copiaTableaux;
@@ -12,46 +11,63 @@ public class Movimiento {
 
     @SuppressWarnings("unchecked")
     public Movimiento(DrawPile dp, WastePile wp, ArrayList<TableauDeck> td, ArrayList<FoundationDeck> fd) {
-        // Clonar Pilas usando el metodo auxiliar
-        this.copiaDraw = clonarPila(dp.getCartasInternas());
-        this.copiaWaste = clonarPila(wp.getCartasInternas());
+        // Clonar Pilas (las cartas dentro también)
+        this.copiaDraw = clonarPilaConCartasNuevas(dp.getCartasInternas());
+        this.copiaWaste = clonarPilaConCartasNuevas(wp.getCartasInternas());
 
         this.copiaTableaux = (ArrayList<CartaInglesa>[]) new ArrayList[7];
         this.copiaFoundations = (ArrayList<CartaInglesa>[]) new ArrayList[4];
 
-        // Clonar las 7 columnas del Tableau
+        // Clonar Tableaus creando cartas nuevas para restaurar correctamente
         for (int i = 0; i < 7; i++) {
-            // Especificamos el tipo <CartaInglesa> para que Java no tenga dudas
-            this.copiaTableaux[i] = new ArrayList<CartaInglesa>(td.get(i).getCards());
+            this.copiaTableaux[i] = new ArrayList<CartaInglesa>();
+            for (CartaInglesa c : td.get(i).getCards()) {
+                this.copiaTableaux[i].add(crearCopiaDeCarta(c));
+            }
         }
 
-        // Clonar las 4 Fundaciones
+        // Clonar Fundaciones
         for (int i = 0; i < 4; i++) {
-            // Usamos el metodo que devuelve la lista de la pila interna
-            this.copiaFoundations[i] = new ArrayList<CartaInglesa>(fd.get(i).getCardsInternasParaCopia());
+            this.copiaFoundations[i] = new ArrayList<CartaInglesa>();
+            for (CartaInglesa c : fd.get(i).getCardsInternasParaCopia()) {
+                this.copiaFoundations[i].add(crearCopiaDeCarta(c));
+            }
         }
     }
 
-    /**
-     * Algoritmo de clonación de Pilas:
-     * Usa una pila auxiliar para duplicar los datos sin perder el orden LIFO.
-     */
-    private Pila<CartaInglesa> clonarPila(Pila<CartaInglesa> original) {
+     //Crea un objeto nuevo de CartaInglesa con el mismo estado de visibilidad.
+    private CartaInglesa crearCopiaDeCarta(CartaInglesa original) {
+        if (original == null) return null;
+
+        int valor = original.getValor();
+        DeckOfCards.Palo palo = original.getPalo();
+        String representacion = original.toString();
+
+        CartaInglesa copia = new CartaInglesa(valor, palo, representacion);
+
+        // Restaurar visibilidad
+        if (original.isFaceup()) {
+            copia.makeFaceUp();
+        } else {
+            copia.makeFaceDown();
+        }
+        return copia;
+    }
+
+    private Pila<CartaInglesa> clonarPilaConCartasNuevas(Pila<CartaInglesa> original) {
         if (original == null) return null;
 
         Pila<CartaInglesa> auxiliar = new Pila<>(52);
         Pila<CartaInglesa> copia = new Pila<>(52);
 
-        // Mover de original a auxiliar (invierte el orden)
         while (!original.pilaVacia()) {
             auxiliar.push(original.pop());
         }
 
-        // Regresar a original y llenar la copia (restaura el orden)
         while (!auxiliar.pilaVacia()) {
-            CartaInglesa carta = auxiliar.pop();
-            original.push(carta);
-            copia.push(carta);
+            CartaInglesa cartaOriginal = auxiliar.pop();
+            original.push(cartaOriginal); // Restaurar original
+            copia.push(crearCopiaDeCarta(cartaOriginal)); // Guardar copia nueva
         }
 
         return copia;

@@ -19,7 +19,7 @@ public class SolitaireGame {
     DrawPile drawPile;
     WastePile wastePile;
 
-    // --- NUEVO: Pila para el historial de movimientos (Undo) ---
+    // Pila para el historial de movimientos (Undo)
     private Pila<Movimiento> historial = new Pila<>(100);
 
     public SolitaireGame() {
@@ -41,18 +41,30 @@ public class SolitaireGame {
     /**
      * Revierte el juego al estado anterior almacenado en la pila de historial.
      */
+    /**
+     * Revierte el juego al estado anterior almacenado en la pila de historial.
+     */
     public void deshacer() {
         if (!historial.pilaVacia()) {
             Movimiento anterior = historial.pop();
-            // Restauramos los estados internos de cada componente
+
+            // Restaurar Draw y Waste
             this.drawPile.setCartasInternas(anterior.copiaDraw);
             this.wastePile.setCartasInternas(anterior.copiaWaste);
 
+            // Restaurar Tableaus y la carta superior esté boca arriba
             for (int i = 0; i < 7; i++) {
                 this.tableau.get(i).setCards(new ArrayList<CartaInglesa>(anterior.copiaTableaux[i]));
             }
+
+            // Restaurar Foundations
             for (int i = 0; i < 4; i++) {
+
                 this.foundation.get(i).setCardsInternas(anterior.copiaFoundations[i]);
+
+                if (!this.foundation.get(i).estaVacio()) {
+                    this.foundation.get(i).getUltimaCarta().makeFaceUp();
+                }
             }
         }
     }
@@ -118,7 +130,7 @@ public class SolitaireGame {
             CartaInglesa cartaInicialDePrueba = fuente.viewCardStartingAt(valorQueDebeTenerLaCartaInicialDeLaFuente);
             if (cartaInicialDePrueba != null && destino.sePuedeAgregarCarta(cartaInicialDePrueba)) {
 
-                registrarEstado(); // SE REGISTRA AQUÍ: Cuando sabemos que el movimiento es posible
+                registrarEstado();
 
                 ArrayList<CartaInglesa> cartas = fuente.removeStartingAt(valorQueDebeTenerLaCartaInicialDeLaFuente);
                 if (destino.agregarBloqueDeCartas(cartas)) {
@@ -128,7 +140,7 @@ public class SolitaireGame {
                     }
                     movimientoRealizado = true;
                 } else {
-                    historial.pop(); // Si algo falló al agregar, revertimos el registro
+                    historial.pop();
                 }
             }
         }
@@ -146,14 +158,14 @@ public class SolitaireGame {
         TableauDeck fuente = tableau.get(numero - 1);
         CartaInglesa carta = fuente.removerUltimaCarta();
 
-        registrarEstado(); // Guardamos antes de intentar colocar en fundación
+        registrarEstado(); // Guardamos antes del movimiento
 
         if (moveCartaToFoundation(carta)) {
             movimientoRealizado = true;
         } else {
             // regresar la carta al tableau porque no se puede hacer el movimiento
             fuente.agregarCarta(carta);
-            historial.pop(); // Borramos el estado guardado porque no hubo cambio real
+            historial.pop(); // Borrar el estado porque no hubo movimiento
         }
         return movimientoRealizado;
     }
